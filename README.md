@@ -1,335 +1,259 @@
-# GPU-Based N-Body Simulation in Astrophysics
+GPU-Based N-Body Simulation in Astrophysics
 
-A high-performance GPU-accelerated N-body simulation framework built with Python, leveraging CuPy and Numba to model gravitational interactions between celestial bodies. This project enables fast computation and real-time visualization of astrophysical dynamics, making it suitable for studying stellar systems, galaxy formation, and other gravitational phenomena.
+A CUDA-accelerated Jupyter Notebook for simulating gravitational interactions between celestial bodies
 
-## Features
+🌌 Overview
 
-- **GPU Acceleration**: Utilizes CuPy and Numba CUDA JIT compilation for massive parallelization
-- **Gravitational N-Body Simulation**: Models realistic gravitational interactions between particles
-- **High Performance**: Capable of simulating thousands to millions of bodies in real-time
-- **Visualization**: Built-in visualization tools for observing system evolution
-- **Flexible Initial Conditions**: Support for various astronomical configurations (galaxies, star clusters, planetary systems)
-- **Optimized Algorithms**: Implements efficient force calculation methods for large-scale simulations
+This repository presents a GPU-accelerated implementation of the N-Body problem within a Jupyter Notebook environment. It demonstrates how parallel computation using CUDA (via CuPy or Numba) can significantly improve the performance of astrophysical simulations compared to traditional CPU implementations.
 
-## Table of Contents
+The notebook walks through every step — from physics formulation and parameter initialization to visualization of celestial motion — making it both a learning resource and a foundation for further astrophysical research or high-performance computing experiments.
 
-- [Installation](#installation)
-- [Requirements](#requirements)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Simulation Parameters](#simulation-parameters)
-- [Performance](#performance)
-- [Examples](#examples)
-- [Theory](#theory)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
+🚀 Key Features
 
-## Installation
+Fully self-contained Jupyter Notebook — run and visualize everything in one place.
 
-### Prerequisites
+GPU acceleration using CuPy or Numba for massively parallel gravitational force calculations.
 
-- NVIDIA GPU with CUDA support (Compute Capability 6.0+)
-- CUDA Toolkit (11.0 or later)
-- Python 3.8 or higher
-- Anaconda or Miniconda (recommended)
+Interactive visualization of particle motion and energy conservation over time.
 
-### Setup
+Customizable parameters (number of bodies, time step, mass, softening factor).
 
-1. Clone the repository:
-```bash
-git clone https://github.com/freyaabbi/GPU-Based-N-Body-Simulation-in-Astrophysics.git
-cd GPU-Based-N-Body-Simulation-in-Astrophysics
-```
+Benchmark comparisons between CPU and GPU performance.
 
-2. Create a conda environment:
-```bash
+Educational clarity — step-by-step code cells illustrating core physics and algorithmic design.
+
+🧠 Theoretical Background
+
+The N-Body problem models the motion of N interacting particles under mutual gravitational forces:
+
+𝐹
+𝑖
+𝑗
+=
+𝐺
+𝑚
+𝑖
+𝑚
+𝑗
+(
+𝑟
+𝑗
+−
+𝑟
+𝑖
+)
+(
+∣
+𝑟
+𝑗
+−
+𝑟
+𝑖
+∣
+2
++
+𝜀
+2
+)
+3
+/
+2
+F
+ij
+	​
+
+=G
+(∣r
+j
+	​
+
+−r
+i
+	​
+
+∣
+2
++ε
+2
+)
+3/2
+m
+i
+	​
+
+m
+j
+	​
+
+(r
+j
+	​
+
+−r
+i
+	​
+
+)
+	​
+
+
+where
+
+𝐹
+𝑖
+𝑗
+F
+ij
+	​
+
+ is the gravitational force on body i due to body j,
+
+𝐺
+G is the gravitational constant,
+
+𝑚
+𝑖
+,
+𝑚
+𝑗
+m
+i
+	​
+
+,m
+j
+	​
+
+ are the masses,
+
+𝑟
+𝑖
+,
+𝑟
+𝑗
+r
+i
+	​
+
+,r
+j
+	​
+
+ are position vectors, and
+
+𝜀
+ε is the softening factor to prevent singularities.
+
+Time integration is achieved using numerical schemes such as Euler or Leapfrog, enabling real-time system evolution.
+
+⚙️ Requirements
+Package	Purpose
+numpy	CPU-based numerical operations
+cupy or numba	GPU acceleration
+matplotlib	Visualization and animation
+tqdm	Progress bar for iterations
+time	Runtime benchmarking
+🧩 Installation
+
+Create a conda or virtual environment and install dependencies:
+
 conda create -n nbody python=3.10
 conda activate nbody
-```
+pip install numpy cupy-cuda11x matplotlib tqdm numba
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
 
-Or install manually:
-```bash
-pip install numpy scipy matplotlib cupy-cuda11x numba
-```
+⚠️ Note: Ensure you have a CUDA-enabled NVIDIA GPU and drivers properly configured.
 
-## Requirements
+💻 Usage
 
-```
-numpy>=1.21.0
-scipy>=1.7.0
-matplotlib>=3.4.0
-cupy-cuda11x>=11.0.0  # Use appropriate CUDA version
-numba>=0.55.0
-```
+Clone the repository
 
-## Quick Start
+git clone https://github.com/freyaabbi/GPU-Based-N-Body-Simulation-in-Astrophysics.git
+cd GPU-Based-N-Body-Simulation-in-Astrophysics
 
-Run a simple galaxy collision simulation:
 
-```python
-from nbody import Simulation, InitialConditions
-import numpy as np
+Launch Jupyter Notebook
 
-# Create two galaxies
-n_particles = 10000
-ic = InitialConditions()
-galaxy1 = ic.create_galaxy(n_particles//2, mass=1e11, radius=10.0, position=[0, 0, 0])
-galaxy2 = ic.create_galaxy(n_particles//2, mass=1e11, radius=10.0, position=[30, 0, 0])
+jupyter notebook
 
-# Combine systems
-initial_state = ic.combine_systems([galaxy1, galaxy2])
 
-# Create and run simulation
-sim = Simulation(initial_state, dt=0.01, method='gpu')
-sim.run(t_end=100.0, visualize=True)
-```
+Open the notebook file:
+N Body Simulations in Astrophysics.ipynb
 
-## Usage
+Run the notebook cells sequentially
 
-### Basic Simulation
+The first few cells define parameters and helper functions.
 
-```python
-from nbody import Simulation
-import numpy as np
+The core cells perform GPU-based computation of forces and updates.
 
-# Define initial conditions
-n_bodies = 1000
-positions = np.random.randn(n_bodies, 3) * 10.0
-velocities = np.random.randn(n_bodies, 3) * 0.5
-masses = np.ones(n_bodies) * 1e30
+The final section visualizes particle trajectories and energy conservation.
 
-# Initialize simulation
-sim = Simulation(
-    positions=positions,
-    velocities=velocities,
-    masses=masses,
-    dt=0.01,
-    softening=0.1,
-    method='gpu'
-)
+⚡ Simulation Parameters
+Parameter	Description	Example
+N	Number of bodies	1024
+G	Gravitational constant	6.674×10⁻¹¹
+dt	Time step	0.01
+softening	Softening parameter	0.1
+iterations	Number of simulation steps	1000
 
-# Run simulation
-results = sim.run(t_end=100.0, save_interval=1.0)
+You can edit these directly in the notebook to experiment with different systems (galaxies, clusters, binary stars, etc.).
 
-# Visualize results
-sim.animate(results, output='simulation.mp4')
-```
+📊 Performance & Benchmark
+Mode	Device	Speedup over CPU
+CPU (NumPy)	Intel i7	1× baseline
+GPU (CuPy/Numba)	NVIDIA RTX 3050	~15–25× faster
 
-### Custom Initial Conditions
+Performance gain increases with number of bodies (N). Small systems may see less benefit due to kernel overhead.
 
-```python
-from nbody import InitialConditions
+🌠 Output & Visualization
 
-ic = InitialConditions()
+The notebook generates:
 
-# Solar system
-solar_system = ic.solar_system()
+Dynamic plots showing orbital motion and clustering behavior
 
-# Star cluster
-cluster = ic.plummer_sphere(n=5000, mass_total=1e38, radius=10.0)
+Energy graphs verifying numerical stability
 
-# Galaxy
-galaxy = ic.create_galaxy(n=10000, mass=1e42, radius=50.0)
+Animated trajectories (optional)
 
-# Custom configuration
-custom = ic.from_arrays(positions, velocities, masses)
-```
+Timing summaries comparing CPU vs GPU runs
 
-## Simulation Parameters
+Example visualization (if added later):
 
-### Core Parameters
+from IPython.display import HTML
+HTML(anim.to_html5_video())
 
-- **dt**: Timestep size (in simulation units)
-- **softening**: Gravitational softening length (prevents singularities)
-- **method**: Computation method (`'gpu'`, `'cpu'`, or `'auto'`)
-- **integrator**: Time integration scheme (`'leapfrog'`, `'rk4'`, `'euler'`)
-
-### Performance Tuning
-
-```python
-sim = Simulation(
-    ...,
-    block_size=256,      # CUDA block size
-    use_shared_mem=True, # Enable shared memory optimization
-    precision='float32'  # Or 'float64' for double precision
-)
-```
-
-## Performance
-
-Typical performance on NVIDIA RTX 3080 (10GB VRAM):
-
-| Number of Bodies | FPS (Steps/sec) | Memory Usage |
-|-----------------|----------------|--------------|
-| 1,000           | ~500           | 100 MB       |
-| 10,000          | ~150           | 200 MB       |
-| 100,000         | ~8             | 1.5 GB       |
-| 1,000,000       | ~0.3           | 12 GB        |
-
-*Note: Performance varies based on GPU model, timestep, and simulation complexity*
-
-## Examples
-
-### 1. Galaxy Collision
-
-```python
-# Example of simulating a galaxy collision
-from examples.galaxy_collision import run_galaxy_collision
-
-run_galaxy_collision(
-    n_particles_per_galaxy=5000,
-    impact_parameter=20.0,
-    relative_velocity=100.0,
-    duration=200.0
-)
-```
-
-### 2. Star Cluster Evolution
-
-```python
-# Simulate a globular cluster
-from examples.star_cluster import run_cluster_evolution
-
-run_cluster_evolution(
-    n_stars=10000,
-    cluster_radius=10.0,
-    simulation_time=1000.0
-)
-```
-
-### 3. Planetary System
-
-```python
-# Simulate a multi-planet system
-from examples.planetary_system import create_system
-
-system = create_system(n_planets=8, include_moons=True)
-results = system.evolve(years=1000)
-```
-
-## Theory
-
-### N-Body Problem
-
-The N-body problem involves predicting the motion of N particles under mutual gravitational attraction. The gravitational force between particles i and j is:
-
-```
-F_ij = G * m_i * m_j * (r_j - r_i) / |r_j - r_i|^3
-```
-
-### Computational Complexity
-
-- **Direct summation**: O(N²) per timestep
-- **Tree methods** (future): O(N log N) per timestep
-- **Fast Multipole Method** (future): O(N) per timestep
-
-### Softening Parameter
-
-To prevent numerical singularities when particles approach closely, a softening length ε is introduced:
-
-```
-F_ij = G * m_i * m_j * (r_j - r_i) / (|r_j - r_i|^2 + ε^2)^(3/2)
-```
-
-### Time Integration
-
-The simulation supports multiple integration schemes:
-
-- **Leapfrog (Kick-Drift-Kick)**: Symplectic, conserves energy well
-- **Runge-Kutta 4th Order**: Higher accuracy, more computationally expensive
-- **Euler**: Simple but less accurate (for testing only)
-
-## Project Structure
-
-```
+🧩 Repository Structure
 GPU-Based-N-Body-Simulation-in-Astrophysics/
-├── nbody/
-│   ├── __init__.py
-│   ├── simulation.py        # Main simulation class
-│   ├── integrators.py       # Time integration methods
-│   ├── initial_conditions.py # Setup functions
-│   ├── force_gpu.py         # GPU force calculation
-│   └── visualization.py     # Plotting and animation
-├── examples/
-│   ├── galaxy_collision.py
-│   ├── star_cluster.py
-│   └── planetary_system.py
-├── tests/
-│   ├── test_simulation.py
-│   └── test_integrators.py
-├── notebooks/
-│   └── demo.ipynb
-├── requirements.txt
-├── setup.py
-├── LICENSE
-└── README.md
-```
+├── N Body Simulations in Astrophysics.ipynb   # Main notebook (core project)
+├── requirements.txt                           # Optional dependency list
+└── README.md                                  # Project documentation
 
-## Contributing
+🔬 Educational Objective
 
-Contributions are welcome! Please follow these steps:
+This notebook aims to:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Demonstrate how GPU computing can accelerate physics simulations.
 
-### Development Setup
+Provide a clear understanding of gravitational dynamics and numerical integration.
 
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
+Serve as a teaching tool for computational astrophysics, physics, and high-performance computing courses.
 
-# Run tests
-pytest tests/
+📘 Future Improvements
 
-# Check code style
-flake8 nbody/
-black nbody/
-```
+Implement Barnes–Hut (O(N log N)) optimization for larger systems
 
-## License
+Add real-time animation export (MP4/GIF)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Integrate energy conservation diagnostics
 
-## Acknowledgments
+Explore multi-GPU scaling
 
-- Inspired by classical N-body simulation methods in astrophysics
-- GPU acceleration techniques based on CUDA best practices
-- CuPy and Numba teams for excellent GPU computing libraries
-- Astrophysics community for validation data and test cases
+🪐 References
 
-## References
+Aarseth, S. J. Gravitational N-Body Simulations (Cambridge University Press, 2003).
 
-1. Dehnen, W. (2001). "Towards optimal softening in 3D N-body codes." MNRAS, 324, 273-291.
-2. Aarseth, S. J. (2003). "Gravitational N-Body Simulations." Cambridge University Press.
-3. Hockney, R. W., & Eastwood, J. W. (1988). "Computer Simulation Using Particles."
-4. NVIDIA CUDA Documentation: https://docs.nvidia.com/cuda/
+Hockney & Eastwood, Computer Simulation Using Particles (1988).
 
-## Citation
+NVIDIA, CUDA C Programming Guide.
 
-If you use this code in your research, please cite:
-
-```bibtex
-@software{nbody_gpu_simulation,
-  author = {Freya Abbi},
-  title = {GPU-Based N-Body Simulation in Astrophysics},
-  year = {2024},
-  url = {https://github.com/freyaabbi/GPU-Based-N-Body-Simulation-in-Astrophysics}
-}
-```
-
-## Contact
-
-For questions or issues, please open an issue on GitHub or contact the maintainer.
-
----
-
-**Note**: This simulation is intended for educational and research purposes. For production astrophysical simulations, consider specialized codes like GADGET, RAMSES, or Nbody6++GPU.
+Dehnen, W. (2001), MNRAS 324:273–291.
